@@ -2,6 +2,14 @@
 name = "wixet-bootstrap"
 version = "1.0.0"
 edition = "2021"
+license-file = "LICENSE"
+description = "A simple library to boot basic services in your application"
+readme = "README.md"
+repository = "https://github.com/wixet-limited/wixet-bootstrap-rs"
+homepage = "https://wixet.com"
+
+categories = ["config"]
+keywords = ["log", "tokio", "signal", "boot"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
