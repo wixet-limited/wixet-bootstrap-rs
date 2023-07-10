@@ -4,6 +4,8 @@
 
 //! This library just starts and configures a logger and provides a friendly shutdown process for tokio apps.
 //! Check [init] to see how to use it
+use std::collections::HashMap;
+
 use signal_hook::consts::signal::*;
 use signal_hook_tokio::{Signals, Handle};
 use futures::stream::StreamExt;
@@ -29,7 +31,7 @@ async fn handle_signals(mut signals: Signals, tx: flume::Sender<i32>) {
 }
 
 /// Configures the logger format. If outfile is none, no log file will be written
-pub fn setup_logger(outfile: Option<&str>) -> Result<()>{
+pub fn setup_logger(outfile: Option<&str>, level: Option<log::LevelFilter>, extra_levels:  Option<HashMap<&str, log::LevelFilter>>) -> Result<()>{
     let mut chain = fern::Dispatch::new()
     // Perform allocation-free log formatting
     .format(|out, message, record| {
@@ -42,7 +44,14 @@ pub fn setup_logger(outfile: Option<&str>) -> Result<()>{
         ))
     })
     // Add blanket level filter -
-    .level(log::LevelFilter::Info);
+    .level(level.unwrap_or(log::LevelFilter::Info));
+
+    if let Some(extra_levels) = extra_levels {
+        for (module, level) in extra_levels.into_iter() {
+            chain = chain.level_for(module.to_owned(), level);
+        }
+    }
+    
     
     if let Some(outfile) = outfile {
         chain = chain.chain(fern::log_file(outfile)?);
@@ -99,8 +108,8 @@ impl InitContext {
 /// 
 /// }
 /// ```
-pub async fn init(log_file: Option<&str>) -> Result<(InitContext, flume::Receiver<i32>)> {
-    setup_logger(log_file)?;
+pub async fn init(log_file: Option<&str>, level: Option<log::LevelFilter>, extra_levels:  Option<HashMap<&str, log::LevelFilter>>) -> Result<(InitContext, flume::Receiver<i32>)> {
+    setup_logger(log_file, level, extra_levels)?;
     // Signals
     let signals = Signals::new([
         SIGHUP,

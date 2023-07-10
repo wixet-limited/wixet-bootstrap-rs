@@ -1,6 +1,6 @@
 [package]
 name = "wixet-bootstrap"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 license-file = "LICENSE"
 description = "A simple library to boot basic services in your application"
